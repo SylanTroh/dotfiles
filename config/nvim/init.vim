@@ -48,12 +48,10 @@ end
 Plug 'tpope/vim-fugitive'                     " Git
 Plug 'vim-airline/vim-airline'                " Airline
 Plug 'vim-airline/vim-airline-themes'         " themes for vim-airline
-Plug 'majutsushi/tagbar'                      " Tagbar
 Plug 'ctrlpvim/ctrlp.vim'                     " Ctrl-P
 Plug 'Chiel92/vim-autoformat'                 " Autoformat
 Plug 'scrooloose/nerdcommenter'               " Comments
 Plug 'ervandew/screen'                        " Tmux
-Plug 'vim-scripts/Vimball'                    " Vimball
 
 Plug 'benekastah/neomake'                     " Syntastic for neovim
 Plug 'ervandew/supertab'                      " Tab Completion
@@ -63,13 +61,9 @@ Plug 'godlygeek/tabular'                      " Align Comments
 Plug 'rhysd/vim-grammarous'                   " Grammar Checking
 
 " Language support
-Plug 'sirtaj/vim-openscad'                    " OpenScad
 Plug 'JuliaEditorSupport/julia-vim'           " Julia
 Plug 'junegunn/vim-emoji'                     " Emojis
 Plug 'vim-scripts/indentpython.vim'           " Python
-Plug 'sophacles/vim-processing'               " Processing
-Plug 'jvirtanen/vim-octave'                   " Octave
-Plug 'jalvesaq/Nvim-R'                        " R
 Plug 'lervag/vimtex'                          " LaTeX
 Plug 'SirVer/ultisnips'                       " Snippets
 Plug 'honza/vim-snippets'                     " Snippets
