@@ -67,12 +67,21 @@ setup_symlinks() {
     done
 }
 
+setup_gogh(){
+    info "Setting color scheme using Gogh"
+    bash -c "$(wget -qO- https://git.io/vQgMr)"
+}
+
 case "$1" in
 	link)
 		setup_symlinks
 		;;
+    gogh)
+        setup_gogh
+        ;;
 	all)
 		setup_symlinks
+        setup_gogh
 		;;
 	*)
 		echo -e $"\nUsage: $(basename "$0") {link|all}\n"
