@@ -69,7 +69,9 @@ setup_symlinks() {
 
 setup_gogh(){
     info "Setting color scheme using Gogh"
-    bash -c "$(wget -qO- https://git.io/vQgMr)"
+    cd "$DOTFILES/gogh/installs"
+    sh catppuccin-frappe.sh
+    info "Remember to switch profile!"
 }
 
 case "$1" in
