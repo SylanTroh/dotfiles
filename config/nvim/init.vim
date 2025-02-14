@@ -169,15 +169,10 @@ nmap <F6> :call ToggleRelativeNumber()<CR>
 syntax enable
 set colorcolumn=80
 
-" let base16colorspace=256  " Access colors present in 256 colorspace"
-" set t_Co=256 " Explicitly tell vim that the terminal supports 256 colors"
-" execute "set background=".$BACKGROUND
-" execute "colorscheme ".$THEME."-".$BACKGROUND
-
-if filereadable(expand("~/.vimrc_background"))
+if exists('$BASE16_THEME')
+      \ && (!exists('g:colors_name') || g:colors_name != 'base16-$BASE16_THEME')
     let base16colorspace=256
-    set t_Co=256 " Explicitly tell vim that the terminal supports 256 colors"
-    source ~/.vimrc_background
+    colorscheme base16-$BASE16_THEME
 endif
 
 "Airline Settings
