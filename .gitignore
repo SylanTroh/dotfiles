@@ -1,0 +1,2 @@
+# Exclude local fish functions
+config/fish/functions/local-*.fish
