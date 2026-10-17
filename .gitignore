@@ -10,3 +10,8 @@ nvim.log
 
 # Fish variables
 config/fish/fish_variables
+
+# Installed by fisher
+config/fish/functions/fisher.fish
+config/fish/completions/fisher.fish
+config/fish/themes/

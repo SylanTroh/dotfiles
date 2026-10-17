@@ -31,6 +31,17 @@ success() {
     echo -e "${COLOR_GREEN}$1${COLOR_NONE}"
 }
 
+setup_packages() {
+    title "Installing packages"
+
+    packages="fish neovim vim tmux git curl fzf fd ripgrep starship wl-clipboard ttf-nerd-fonts-symbols-mono texlab"
+    if command -v pacman >/dev/null; then
+        sudo pacman -S --needed $packages
+    else
+        warning "Manual install needed: $packages"
+    fi
+}
+
 setup_symlinks() {
     title "Creating symlinks"
 
@@ -60,26 +71,64 @@ setup_symlinks() {
     fi
 }
 
+setup_plugins() {
+    title "Installing plugins"
+
+    # fish_plugins is the plugin list; fisher installs the files
+    if command -v fish >/dev/null; then
+        info "fish plugins"
+        fish -c '
+            if not contains jorgebucaran/fisher $_fisher_plugins
+                rm -f $__fish_config_dir/functions/fisher.fish $__fish_config_dir/completions/fisher.fish
+                curl -fsSL --max-time 60 https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source
+            end
+            if not type -q fisher
+                echo "Could not download fisher, check your connection and rerun" >&2
+                exit 1
+            end
+            fisher update'
+    fi
+
+    if command -v nvim >/dev/null; then
+        info "nvim plugins"
+        nvim --headless "+PlugInstall --sync" +qa
+    fi
+
+    if command -v vim >/dev/null; then
+        info "vim plugins"
+        vim -es -i NONE -u "$HOME/.vimrc" "+PlugInstall --sync" +qa
+    fi
+}
+
 setup_gogh(){
     info "Setting color scheme using Gogh"
+    git -C "$DOTFILES" submodule update --init gogh
     cd "$DOTFILES/gogh/installs"
     sh catppuccin-frappe.sh
     info "Remember to switch profile!"
 }
 
 case "$1" in
+    packages)
+        setup_packages
+        ;;
 	link)
 		setup_symlinks
 		;;
+    plugins)
+        setup_plugins
+        ;;
     gogh)
         setup_gogh
         ;;
 	all)
+        setup_packages
 		setup_symlinks
+        setup_plugins
         setup_gogh
 		;;
 	*)
-		echo -e "\nUsage: $(basename "$0") {link|gogh|all}\n"
+		echo -e "\nUsage: $(basename "$0") {packages|link|plugins|gogh|all}\n"
 		exit 1
 		;;
 esac

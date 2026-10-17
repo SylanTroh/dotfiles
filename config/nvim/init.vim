@@ -78,6 +78,11 @@ else
 endif
 
 call plug#end()
+
+" Install missing plugins
+autocmd VimEnter * if len(filter(values(g:plugs), '!isdirectory(v:val.dir)'))
+            \| PlugInstall --sync | source $MYVIMRC
+            \| endif
 endif
 
 " ==============================================================================

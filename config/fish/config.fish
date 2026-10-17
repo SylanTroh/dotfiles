@@ -8,3 +8,7 @@ end
 for f in ~/.config/fish/functions/local-*.fish
     source $f
 end
+
+if status is-interactive; and type -q starship
+    starship init fish | source
+end
