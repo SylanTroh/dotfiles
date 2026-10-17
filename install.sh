@@ -1,6 +1,6 @@
-#!/usr/bin/env/bash
+#!/usr/bin/env bash
 
-DOTFILES="$(pwd)"
+DOTFILES="$(cd "$(dirname "$0")" && pwd)"
 COLOR_GRAY="\033[1;38;5;243m"
 COLOR_BLUE="\033[1;34m"
 COLOR_GREEN="\033[1;32m"
@@ -31,24 +31,9 @@ success() {
     echo -e "${COLOR_GREEN}$1${COLOR_NONE}"
 }
 
-get_linkables() {
-    find -H "$DOTFILES" -maxdepth 3 -name '*.symlink'
-}
-
 setup_symlinks() {
     title "Creating symlinks"
 
-    for file in $(get_linkables) ; do
-        target="$HOME/.$(basename "$file" '.symlink')"
-        if [ -e "$target" ]; then
-            info "~${target#$HOME} already exists... Skipping."
-        else
-            info "Creating symlink for $file"
-            ln -s "$file" "$target"
-        fi
-    done
-
-    echo -e
     info "installing to ~/.config"
     if [ ! -d "$HOME/.config" ]; then
         info "Creating ~/.config"
@@ -65,6 +50,14 @@ setup_symlinks() {
             ln -s "$config" "$target"
         fi
     done
+
+    # vim shares the nvim config
+    if [ -e "$HOME/.vimrc" ]; then
+        info "~/.vimrc already exists... Skipping."
+    else
+        info "Creating symlink for ~/.vimrc"
+        ln -s "$DOTFILES/config/nvim/init.vim" "$HOME/.vimrc"
+    fi
 }
 
 setup_gogh(){
@@ -86,7 +79,7 @@ case "$1" in
         setup_gogh
 		;;
 	*)
-		echo -e $"\nUsage: $(basename "$0") {link|all}\n"
+		echo -e "\nUsage: $(basename "$0") {link|gogh|all}\n"
 		exit 1
 		;;
 esac

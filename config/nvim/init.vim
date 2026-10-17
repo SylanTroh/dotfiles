@@ -20,6 +20,12 @@
 " Disable vi compatibility mode
 set nocompatible
 
+" Shared with vim via ~/.vimrc
+let s:config_dir = fnamemodify(resolve(expand('<sfile>:p')), ':h')
+if !has('nvim')
+    execute 'set runtimepath^=' . fnameescape(s:config_dir)
+endif
+
 " Increase history size
 set history=1000
 
@@ -38,7 +44,11 @@ autocmd FocusLost * silent! wa
 " 2. VIM-PLUG PLUGINS
 " ==============================================================================
 " Init vim-plug
-if has("win32") || has("win64")
+let s:has_plug = !empty(globpath(&runtimepath, 'autoload/plug.vim'))
+if s:has_plug
+if has('nvim')
+    call plug#begin(stdpath('data') . '/plugged')
+elseif has("win32") || has("win64")
     call plug#begin('$USERPROFILE/vimfiles/plugged/')
 else
     call plug#begin('~/.vim/plugged/')
@@ -48,34 +58,27 @@ end
 Plug 'tpope/vim-fugitive'                     " Git
 Plug 'vim-airline/vim-airline'                " Airline
 Plug 'vim-airline/vim-airline-themes'         " themes for vim-airline
-Plug 'ctrlpvim/ctrlp.vim'                     " Ctrl-P
-Plug 'Chiel92/vim-autoformat'                 " Autoformat
-Plug 'scrooloose/nerdcommenter'               " Comments
-Plug 'ervandew/screen'                        " Tmux
-
-Plug 'benekastah/neomake'                     " Syntastic for neovim
-Plug 'ervandew/supertab'                      " Tab Completion
-Plug 'Yggdroot/indentLine'                    " Indent Lines
-Plug 'justincampbell/vim-eighties'            " Auto Resize splits
-Plug 'godlygeek/tabular'                      " Align Comments
-Plug 'rhysd/vim-grammarous'                   " Grammar Checking
+Plug 'preservim/nerdcommenter'                " Comments
 
 " Language support
-Plug 'JuliaEditorSupport/julia-vim'           " Julia
-Plug 'junegunn/vim-emoji'                     " Emojis
-Plug 'vim-scripts/indentpython.vim'           " Python
 Plug 'lervag/vimtex'                          " LaTeX
-Plug 'SirVer/ultisnips'                       " Snippets
-Plug 'honza/vim-snippets'                     " Snippets
-Plug 'tikhomirov/vim-glsl'                    " GLSL
 
 " Colorschemes
-Plug 'chriskempson/base16-vim'
+Plug 'tinted-theming/tinted-vim'              " base16
 
-" Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-" let g:deoplete#enable_at_startup = 1
+" Neovim only
+if has('nvim')
+    Plug 'neovim/nvim-lspconfig'              " Language servers
+    Plug 'L3MON4D3/LuaSnip'                   " Snippets
+    Plug 'folke/which-key.nvim'               " Show keymaps
+    Plug 'lewis6991/gitsigns.nvim'            " Git signs
+    Plug 'ibhagwan/fzf-lua'                   " fzf
+else
+    Plug 'ctrlpvim/ctrlp.vim'                 " Ctrl-P
+endif
 
 call plug#end()
+endif
 
 " ==============================================================================
 " 3. USER INTERFACE
@@ -130,7 +133,7 @@ set mat=2
 set noerrorbells
 set novisualbell
 set t_vb=
-set tm=500
+set tm=1000
 
 " Always show which mode we are in
 set showmode
@@ -153,6 +156,9 @@ set relativenumber
 set splitbelow
 set splitright
 
+" Auto Resize splits
+set winwidth=80
+
 " highlght line where the cursor is
 "set cursorline
 
@@ -169,11 +175,12 @@ nmap <F6> :call ToggleRelativeNumber()<CR>
 syntax enable
 set colorcolumn=80
 
-if exists('$BASE16_THEME')
-      \ && (!exists('g:colors_name') || g:colors_name != 'base16-$BASE16_THEME')
-    let base16colorspace=256
-    colorscheme base16-$BASE16_THEME
+if has('termguicolors') && $COLORTERM =~# 'truecolor\|24bit'
+    let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+    let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+    set termguicolors
 endif
+silent! colorscheme base16-catppuccin-frappe
 
 "Airline Settings
 "let g:airline_powerline_fonts=1
@@ -304,11 +311,8 @@ nmap <M-k> mz:m-2<cr>`z
 vmap <M-j> :m'>+<cr>`<my`>mzgv`yo`z
 vmap <M-k> :m'<-2<cr>`>my`<mzgv`yo`z
 
-"Align Comments
-noremap <leader>cf :Tab /#<cr>
-
 "Autoformat
-noremap <F3> :Autoformat<CR>
+noremap <F3> mzgg=G`z
 
 " helpers for dealing with other people's code
 nmap ,t :set ts=4 sts=4 sw=4 noet<cr>
@@ -353,7 +357,12 @@ vnoremap <silent> <leader>gr :call VisualSelection('replace')<CR>
 " IMPORTANT: grep will sometimes skip displaying the file name if you
 " search in a singe file. This will confuse Latex-Suite. Set your grep
 " program to always generate a file-name.
-set grepprg=grep\ -nH\ $*
+if executable('rg')
+    set grepprg=rg\ --vimgrep\ --smart-case
+    set grepformat=%f:%l:%c:%m
+else
+    set grepprg=grep\ -nH\ $*
+endif
 " ==============================================================================
 " 11. Spell Checking
 " ==============================================================================
@@ -366,6 +375,12 @@ map <leader>sp [s
 map <leader>sa zg
 map <leader>sr zw
 map <leader>s? z=
+
+" Rebuild spell file
+let &spellfile = s:config_dir . '/spell/en.utf-8.add'
+if getftime(&spellfile) > getftime(&spellfile . '.spl')
+    silent! execute 'mkspell! ' . fnameescape(&spellfile)
+endif
 
 " ==============================================================================
 " 12. MISC
@@ -387,6 +402,9 @@ au BufNewFile,BufRead *.py set ft=python
 au BufNewFile,BufRead *.sage set ft=python
 au BufNewFile,BufRead *.r set ft=r
 au BufNewFile,BufRead *.vs,*.fs set ft=glsl
+
+"LaTeX settings
+au FileType tex setlocal sw=2 conceallevel=2 iskeyword+=:
 
 " ==============================================================================
 " 13. HELPER FUNCTIONS
@@ -498,45 +516,30 @@ let g:ctrlp_custom_ignore = {
             \ 'file': '\.exe$\|\.so$'
             \ }
 
-" search the nearest ancestor that contains .git, .hg, .svn
-"let g:ctrlp_working_path_mode = 2
-
-" When writing a buffer (no delay), and on normal mode changes (after 750ms).
-call neomake#configure#automake('nw', 750)
-
-"Vim Eighties Config
-let g:eighties_enabled = 1
-let g:eighties_minimum_width = 80
-let g:eighties_extra_width = 0 " Increase this if you want some extra room
-let g:eighties_compute = 1 " Disable this if you just want the minimum + extra
-let g:eighties_bufname_additional_patterns = ['fugitiveblame'] " Defaults to [], 'fugitiveblame' is only an example. Takes a comma delimited list of bufnames as strings.
-
-"Indent Line Settings
-let g:indentLine_char = '│'
+" Use git to list files
+let g:ctrlp_user_command = {
+            \ 'types': {1: ['.git', 'cd %s && git ls-files -co --exclude-standard']},
+            \ }
 
 " vimtex
 let g:tex_flavor='latex'
-let g:vimtex_view_method = 'zathura'
-let g:vimtex_latexmk_progname = 'nvr'
+if executable('zathura')
+    let g:vimtex_view_method = 'zathura'
+elseif executable('okular')
+    let g:vimtex_view_general_viewer = 'okular'
+    let g:vimtex_view_general_options = '--unique file:@pdf\#src:@line@tex'
+endif
 let g:vimtex_quickfix_mode = 2
 set conceallevel=1
 let g:tex_conceal='abdmg'
 let g:vimtex_quickfix_autoclose_after_keystrokes = 3
 let g:vimtex_indent_on_ampersands = 0
 
-" let g:UltiSnipsExpandTrigger="<tab>"
-let g:UltiSnipsJumpForwardTrigger="<c-j>"
-let g:UltiSnipsJumpBackwardTrigger="<c-k>>"
-let g:UltiSnipsEditSplit="vertical"
-let g:UltiSnipsSnippetDirectories=["Ultisnips","mysnippets"]
-
-" "Deoplete
-" call deoplete#custom#var('omni', 'input_patterns', {
-            " \ 'tex': g:vimtex#re#deoplete
-            " \})
-
-let g:SuperTabDefaultCompletionType = "<tab>"
-
-autocmd FileType javascript let g:SuperTabDefaultCompletionType = "<c-x><c-o>"
-let g:UltiSnipsExpandTrigger="<c-j>"
+" Tab Completion
 inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
+inoremap <expr><S-TAB>  pumvisible() ? "\<C-p>" : "\<S-TAB>"
+
+" Neovim Extras
+if has('nvim') && s:has_plug
+    lua require('nvim_extras')
+endif

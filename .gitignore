@@ -1,3 +1,12 @@
 # Exclude local config and functions
 config/fish/conf.d/local-*.fish
 config/fish/functions/local-*.fish
+
+# Stray logs
+nvim.log
+
+# Compiled spell files
+*.spl
+
+# Fish variables
+config/fish/fish_variables
