@@ -62,6 +62,13 @@ setup_symlinks() {
         fi
     done
 
+    if [ -e "$HOME/texmf" ]; then
+        info "~/texmf already exists... Skipping."
+    else
+        info "Creating symlink for ~/texmf"
+        ln -s "$DOTFILES/texmf" "$HOME/texmf"
+    fi
+
     # vim shares the nvim config
     if [ -e "$HOME/.vimrc" ]; then
         info "~/.vimrc already exists... Skipping."

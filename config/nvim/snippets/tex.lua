@@ -24,8 +24,10 @@ local function wrap(trig, dscr, ...)
 end
 
 local snippets = {
-  env('prop', 'proposition', 'Begin Proposition Environment'),
+  env('prop', 'proposition*', 'Begin Proposition Environment'),
   env('def', 'definition*', 'Begin Definition Environment', true),
+  env('rem', 'remark*', 'Begin Remark Environment'),
+  env('ex', 'example*', 'Begin Example Environment'),
 
   s({ trig = 'today', dscr = 'Date' }, f(function() return os.date('%F') end)),
 
@@ -46,10 +48,10 @@ local snippets = {
 }
 
 local autosnippets = {
-  env('prob', 'problem', 'Begin Problem Environment'),
-  env('theo', 'theorem', 'Begin Theorem Environment', true),
-  env('lemma', 'lemma', 'Begin Lemma Environment'),
-  env('coro', 'corollary', 'Begin Corollary Environment'),
+  env('prob', 'problem*', 'Begin Problem Environment'),
+  env('theo', 'theorem*', 'Begin Theorem Environment', true),
+  env('lemma', 'lemma*', 'Begin Lemma Environment'),
+  env('coro', 'corollary*', 'Begin Corollary Environment'),
   env('proof', 'proof', 'Begin Proof Environment'),
 
   -- Inline Math

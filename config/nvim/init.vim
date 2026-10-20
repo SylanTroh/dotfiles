@@ -529,7 +529,7 @@ let g:ctrlp_user_command = {
 " vimtex
 let g:tex_flavor='latex'
 if executable('zathura')
-    let g:vimtex_view_method = 'zathura'
+    let g:vimtex_view_method = 'zathura_simple'
 elseif executable('okular')
     let g:vimtex_view_general_viewer = 'okular'
     let g:vimtex_view_general_options = '--unique file:@pdf\#src:@line@tex'
