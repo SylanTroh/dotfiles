@@ -74,11 +74,16 @@ if vim.fn.has('nvim-0.11') == 0 then return end
 vim.diagnostic.config({ virtual_text = true })
 vim.o.completeopt = 'menuone,noselect,popup'
 
--- Enabled only if installed
-local servers = { 'clangd', 'rust_analyzer', 'ruff', 'basedpyright', 'lua_ls', 'texlab' }
+local servers = { 'clangd', 'rust_analyzer', 'ruff', 'basedpyright', 'lua_ls', 'texlab',
+                  'html', 'cssls', 'jsonls', 'ts_ls' }
+local bins = {
+  html = 'vscode-html-language-server', cssls = 'vscode-css-language-server',
+  jsonls = 'vscode-json-language-server', ts_ls = 'typescript-language-server',
+}
 for _, name in ipairs(servers) do
   local cmd = (vim.lsp.config[name] or {}).cmd
-  if type(cmd) == 'table' and vim.fn.executable(cmd[1]) == 1 then
+  local bin = bins[name] or (type(cmd) == 'table' and cmd[1])
+  if bin and vim.fn.executable(bin) == 1 then
     vim.lsp.enable(name)
   end
 end
@@ -91,5 +96,14 @@ vim.api.nvim_create_autocmd('LspAttach', {
     end
     -- Autoformat
     vim.keymap.set('n', '<F3>', vim.lsp.buf.format, { buffer = args.buf })
+  end,
+})
+
+-- Markdown: regex syntax highlights inline HTML, treesitter has no html parser
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = 'markdown',
+  callback = function(args)
+    vim.treesitter.stop(args.buf)
+    vim.bo[args.buf].syntax = 'markdown'
   end,
 })

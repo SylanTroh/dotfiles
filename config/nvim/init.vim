@@ -156,7 +156,7 @@ set nowrap
 set number
 
 " show numbers as relative by default
-set relativenumber
+" set relativenumber
 
 set splitbelow
 set splitright
@@ -186,6 +186,9 @@ if has('termguicolors') && $COLORTERM =~# 'truecolor\|24bit'
     set termguicolors
 endif
 silent! colorscheme base16-catppuccin-frappe
+
+silent! hi VertSplit    guifg=#51576d guibg=#51576d ctermfg=8 ctermbg=8
+silent! hi WinSeparator guifg=#51576d guibg=#51576d ctermfg=8 ctermbg=8
 
 "Airline Settings
 "let g:airline_powerline_fonts=1
@@ -229,8 +232,8 @@ set wrap "Wrap lines
 set wm=8
 
 "Split lines as break lines (useful when moving around in them)
-map j gj
-map k gk
+noremap j gj
+noremap k gk
 
 "Resize horizontal splits fast
 if bufwinnr(1)
