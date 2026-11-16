@@ -15,3 +15,5 @@ config/fish/fish_variables
 config/fish/functions/fisher.fish
 config/fish/completions/fisher.fish
 config/fish/themes/
+
+kde/snapshots/
